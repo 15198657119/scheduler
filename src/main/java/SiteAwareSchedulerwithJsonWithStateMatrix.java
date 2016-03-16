@@ -10,11 +10,12 @@
     import java.util.*;
 
     //running 9_3_30 before that
-    public class SiteAwareSchedulerwithJsonWithState implements IScheduler {
+    public class SiteAwareSchedulerwithJsonWithStateMatrix implements IScheduler {
 
         private static final String SITE = "site"; //used only while caching supervisor details
     //    private static final String THREADS = "threads";
     String jsonfilepath = "/data/tetc/apache-storm-0.9.4-ForScheduling/conf/inputTopoConfig.json";
+        Map<ExecutorDetails, String> executorDetailsStringMap;
 
         @Override
         public void prepare(Map conf) {
@@ -40,23 +41,41 @@
                 StateFromConf.createSetFromConf(jsonfilepath,t,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
                 System.out.println("\n\nboltName_Set_FromConf-" + boltName_Set_FromConf);
                 System.out.println("workerslot_Set_FromConf-" + workerslot_Set_FromConf);
+                int row_size_fromConf=workerslot_Set_FromConf.size();
+                int column_size_fromConf=boltName_Set_FromConf.size();
                 StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
                 System.out.println("\n\t\t\t\t--Conf state done--");
 
 
+                System.out.println("\n\nTest:Start");
                 Map<String, Integer> test_boltname_NumberPair = new HashMap<>();
                 Map<WorkerSlot,Integer> test_workeSlot_NumberPair = new HashMap<>();
-                int[][] CurrentexecToboltNameMatrix=null;
+
+                int[][] CurrentexecToboltNameMatrix=new int[row_size_fromConf][column_size_fromConf];
+                Map<ExecutorDetails, String> _executorDetailsStringMapDummy = UtilityFunction.currentExecListToboltnameDemo(t, cluster);
+                if(_executorDetailsStringMapDummy.size()!=0)
+                    this.executorDetailsStringMap = _executorDetailsStringMapDummy;
+
+                System.out.println("executorDetailsStringMap-"+ this.executorDetailsStringMap +"\n");
+                    if(executorDetailsStringMap!=null)
+                    CurrentexecToboltNameMatrix=UtilityFunction.createCurrentMatrixDemo(t,cluster,test_boltname_NumberPair,test_workeSlot_NumberPair,row_size_fromConf,column_size_fromConf, this.executorDetailsStringMap);
+                System.out.println("CurrentexecToboltNameMatrix-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
+
                 System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
                 System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
                 System.out.println("CurrentexecToboltNameMatrix-"+CurrentexecToboltNameMatrix);
 
+
+                System.out.println("CurrentexecToboltNameMatrix-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
+                System.out.println("\t\t\t\tTest:End------------------------------------\n\n");
+
+
+
+
                 needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout,vm_Name_supIDMap);
 
 
-                //
                 if (needsSchedulingFlag == 1) {
-
 //                    StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
                     Map<String, SupervisorDetails> supervisors = new HashMap<>();
                     JSONParser parser = new JSONParser();
