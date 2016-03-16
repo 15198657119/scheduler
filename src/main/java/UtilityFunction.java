@@ -75,7 +75,7 @@
             }
         }
 
-        public static void joinExecToboltNameAndgetCurrentExectoSlotmapping(Map<ExecutorDetails, WorkerSlot> execToslotMapping, Map<ExecutorDetails, String> execToboltNameMapping, Cluster cluster)
+        public static int[][] joinExecToboltNameAndgetCurrentExectoSlotmapping(Map<ExecutorDetails, WorkerSlot> execToslotMapping, Map<ExecutorDetails, String> execToboltNameMapping, Map<String, Integer> test_boltname_NumberPair, Map<WorkerSlot, Integer> test_workeSlot_NumberPair)
         {
 
             //make list of list here
@@ -85,42 +85,33 @@
             //get list of boltnames as columns
             //entry is size of exec_list from getCurrentExectoSlotMapping output
 
-    //        Set<Integer> ports = new HashSet<Integer>();
-//            Map<String,Integer> _boltname_NumberPair = new HashMap<>();
-//            Map<WorkerSlot,Integer> _workeSlot_NumberPair = new HashMap<>();
 
-            Map<String, Integer> test_boltname_NumberPair = new HashMap<>();
-            Map<WorkerSlot,Integer> test_workeSlot_NumberPair = new HashMap<>();
+//            Map<String, Integer> test_boltname_NumberPair = new HashMap<>();
+//            Map<WorkerSlot,Integer> test_workeSlot_NumberPair = new HashMap<>();
 
             String boltName=null;
             WorkerSlot w=null;
 
-//            for (ExecutorDetails key : execToslotMapping.keySet()) {
-//                System.out.println(key + " - " + execToslotMapping.get(key).getPort());
-//            }
-
-            //test set creation and sorting
-
-                Set<WorkerSlot> test_SlotSet = new HashSet<WorkerSlot>();
+            Set<WorkerSlot> test_SlotSet = new HashSet<WorkerSlot>();
                 for (ExecutorDetails key : execToslotMapping.keySet()) {
                     test_SlotSet.add(execToslotMapping.get(key));
                 }
-                test_workeSlot_NumberPair =UtilityFunction.WorkerSlotsetToSortedIndexedList(test_SlotSet);
+            test_workeSlot_NumberPair =UtilityFunction.WorkerSlotsetToSortedIndexedList(test_SlotSet);
 
-                Set<String> test_NameSet = new HashSet<String>();
+            Set<String> test_NameSet = new HashSet<String>();
                 for (ExecutorDetails key : execToboltNameMapping.keySet()) {
                     test_NameSet.add(execToboltNameMapping.get(key));
                 }
-                test_boltname_NumberPair=UtilityFunction.StringsetToSortedIndexedList(test_NameSet);
+            test_boltname_NumberPair=UtilityFunction.StringsetToSortedIndexedList(test_NameSet);
 
 
 
-            System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
-            System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
+//            System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
+//            System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
 
 
 
-            int[][] execToboltNameMatrix=new int[test_workeSlot_NumberPair.size()][test_boltname_NumberPair.size()];
+            int[][] CurrentexecToboltNameMatrix=new int[test_workeSlot_NumberPair.size()][test_boltname_NumberPair.size()];
                     for (ExecutorDetails exec : execToslotMapping.keySet()) {
 
                         WorkerSlot workerSlot = execToslotMapping.get(exec);
@@ -132,7 +123,7 @@
                         if(s!=null) {
                             int column_number = test_boltname_NumberPair.get(s);
 //                        execToboltNameMatrix[row_number][column_number]+=entry;
-                            execToboltNameMatrix[row_number][column_number] += 1;
+                            CurrentexecToboltNameMatrix[row_number][column_number] += 1;
                             System.out.println(exec + " - " + workerSlot.getPort() + "-Boltname-" + s + "-row-" + row_number + "-column-" + column_number);
                         }
     //                    if(execToslotMapping.get(exec).getPort()==i){
@@ -141,16 +132,16 @@
     //                        execToboltNameMatrix[i][_boltname_NumberPair.get(_bname)]=entry;
     //                        System.out.println("i-"+i+"-_boltname_NumberPair.get(_bname)-"+_boltname_NumberPair.get(_bname)+"-entry-"+entry);
                         }
-            System.out.println("printing a 2-D array-"+Arrays.deepToString(execToboltNameMatrix));
+            System.out.println("printing a 2-D array-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
 
 
-
+            return CurrentexecToboltNameMatrix;
 
             }
 
 
 
-        public  static int setFlagforScheduling(TopologyDetails t_name, Cluster cluster, String jsonfilepath, int needsSchedulingFlagBolt, int needsSchedulingFlagSpout, Map<String, String> vm_Name_supIDMap, Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf){
+        public  static int setFlagforScheduling(TopologyDetails t_name, Cluster cluster, String jsonfilepath, int needsSchedulingFlagBolt, int needsSchedulingFlagSpout, Map<String, String> vm_Name_supIDMap){
 
 //            for (TopologyDetails t_name : topologyDetails) {
                 StormTopology topology = t_name.getTopology();
@@ -163,22 +154,13 @@
                 Map<String, SpoutSpec> spouts = topology.get_spouts();
                 List<ExecutorDetails> executors = new ArrayList<ExecutorDetails>();
 
-//            Set<String> boltName_Set_FromConf = new HashSet<>();
-//            Set<String> workerslot_Set_FromConf = new HashSet<>();
-//            List<String> FullMappingRes_conf = new ArrayList();
 
                 for (String boltName : bolts.keySet()) {
                     executors = cluster.getNeedsSchedulingComponentToExecutors(t_name).get(boltName);
                     String thread_count_in_conf = JsonFIleReader.getJsonThreadCount(jsonfilepath, topoName, boltName);
                     System.out.println("executors within bolt- " + boltName + "-" + executors);
 
-
-
-                    StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, fullMappingRes_conf);//state from conf
-//                     System.out.println("\n\n\t\t**********CONF state**********");
-//                        System.out.println("Conf State set-" + boltName_Set_FromConf);
-//                        System.out.println("Conf State set-" + workerslot_Set_FromConf);
-//                        StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+//                    StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, fullMappingRes_conf);//state from conf
 
                     if (executors != null) {
 

@@ -31,20 +31,27 @@
 
             for (TopologyDetails t : topologyDetails) {
 
-                //
-                    Map<String, String> vm_Name_supIDMap = new HashMap<>();
+                Map<String, String> vm_Name_supIDMap = new HashMap<>();
                 vm_Name_supIDMap = StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
                 System.out.println("vm_Name_supIDMap-\n" + vm_Name_supIDMap + "\n");
-            Set<String> boltName_Set_FromConf = new HashSet<>();
-            Set<String> workerslot_Set_FromConf = new HashSet<>();
-            List<String> FullMappingRes_conf = new ArrayList();
-                //
-
-                needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
-                System.out.println("\n\n\t\t**********CONF state**********");
-                System.out.println("Conf State set-" + boltName_Set_FromConf);
-                System.out.println("Conf State set-" + workerslot_Set_FromConf);
+                Set<String> boltName_Set_FromConf = new HashSet<>();
+                Set<String> workerslot_Set_FromConf = new HashSet<>();
+                List<String> FullMappingRes_conf = new ArrayList();
+                StateFromConf.createSetFromConf(jsonfilepath,t,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
+                System.out.println("\n\nboltName_Set_FromConf-" + boltName_Set_FromConf);
+                System.out.println("workerslot_Set_FromConf-" + workerslot_Set_FromConf);
                 StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+                System.out.println("\n\t\t\t\t--Conf state done--");
+
+
+                Map<String, Integer> test_boltname_NumberPair = new HashMap<>();
+                Map<WorkerSlot,Integer> test_workeSlot_NumberPair = new HashMap<>();
+                int[][] CurrentexecToboltNameMatrix=null;
+                System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
+                System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
+                System.out.println("CurrentexecToboltNameMatrix-"+CurrentexecToboltNameMatrix);
+
+                needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout,vm_Name_supIDMap);
                 //
                 if (needsSchedulingFlag == 1) {
 
@@ -55,7 +62,6 @@
                     {
                         for (String s : cluster.getSupervisors().keySet()) {
                             System.out.println("supervisor names are -" + s);
-
                         }
                     }
                     //
@@ -189,7 +195,7 @@
                                     System.out.println("No Worker slot is empty for this task-" + s);
                                 }
                             }
-                            System.out.println("Bolt Schedling Done");
+                            System.out.println("\n\t\t-- Bolt Schedling Done --");
 //                        //logging :getting deatils of worker slot
 //                        for (WorkerSlot w : workerSlots) {
 //                            System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort());
@@ -226,16 +232,11 @@
                         //printing current assignment
 //                    execToslotMapping=UtilityFunction.removeSpout_CurrentExectoSlotMapping(spout_executors,execToslotMapping);//removing spout_executors from  mapping
                         System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
-                        UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping, cluster);
+                    CurrentexecToboltNameMatrix=UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping,test_boltname_NumberPair,test_workeSlot_NumberPair);
 
-//                        System.out.println("\n\n\t\t**********CONF state**********");
-//                        System.out.println("Conf State set-" + boltName_Set_FromConf);
-//                        System.out.println("Conf State set-" + workerslot_Set_FromConf);
-//                        StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
-//                    }
 
                 } else {
-                    System.out.println("\n\n\t\t\t\t-- Topo does not need scheduling--"+t);
+                    System.out.println("\n\n\t\t\t\t-- Topo does not need scheduling--"+t.getName());
                 }
             }
         }
@@ -243,34 +244,3 @@
     }
 
 
-    //        TEST:running
-    //        TEST:caching supervisors indexed by their sites in a hash map...
-    //        TEST:supervisor name-backtype.storm.scheduler.SupervisorDetails@375112e4
-    //        TEST: checking if metadata is set on this supervisor....
-    //        TEST:Value for this supervisor-ufl
-    //        TEST:supervisor name-backtype.storm.scheduler.SupervisorDetails@2baf531b
-    //        TEST: checking if metadata is set on this supervisor....
-    //        TEST:Value for this supervisor-tamu
-    //        TEST:supervisor name-backtype.storm.scheduler.SupervisorDetails@3792805
-    //        TEST: checking if metadata is set on this supervisor....
-    //        TEST:Value for this supervisor-uh
-    //        ExecutorToComponents  mapping-
-    //        Component name--Second
-    //        start task-3
-    //        start task-3
-    //        Component name--__acker
-    //        start task-5
-    //        start task-5
-    //        Component name--Third
-    //        start task-4
-    //        start task-4
-    //        Component name--First
-    //        start task-2
-    //        start task-2
-    //        Component name--AuthSpout
-    //        start task-1
-    //        start task-1
-    //        TEST:inside topology loop for bolt-ufl
-    //        TEST:inside topology loop for bolt-tamu
-    //        TEST:inside topology loop for bolt-uh
-    //        TEST:inside topology loop for spout-tamu
