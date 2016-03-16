@@ -150,7 +150,7 @@
 
 
 
-        public  static int setFlagforScheduling( TopologyDetails t_name, Cluster cluster, String jsonfilepath, int needsSchedulingFlagBolt, int needsSchedulingFlagSpout){
+        public  static int setFlagforScheduling(TopologyDetails t_name, Cluster cluster, String jsonfilepath, int needsSchedulingFlagBolt, int needsSchedulingFlagSpout, Map<String, String> vm_Name_supIDMap, Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf){
 
 //            for (TopologyDetails t_name : topologyDetails) {
                 StormTopology topology = t_name.getTopology();
@@ -163,12 +163,22 @@
                 Map<String, SpoutSpec> spouts = topology.get_spouts();
                 List<ExecutorDetails> executors = new ArrayList<ExecutorDetails>();
 
+//            Set<String> boltName_Set_FromConf = new HashSet<>();
+//            Set<String> workerslot_Set_FromConf = new HashSet<>();
+//            List<String> FullMappingRes_conf = new ArrayList();
 
                 for (String boltName : bolts.keySet()) {
                     executors = cluster.getNeedsSchedulingComponentToExecutors(t_name).get(boltName);
                     String thread_count_in_conf = JsonFIleReader.getJsonThreadCount(jsonfilepath, topoName, boltName);
                     System.out.println("executors within bolt- " + boltName + "-" + executors);
 
+
+
+                    StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, fullMappingRes_conf);//state from conf
+//                     System.out.println("\n\n\t\t**********CONF state**********");
+//                        System.out.println("Conf State set-" + boltName_Set_FromConf);
+//                        System.out.println("Conf State set-" + workerslot_Set_FromConf);
+//                        StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
 
                     if (executors != null) {
 

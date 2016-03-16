@@ -29,13 +29,26 @@
             int needsSchedulingFlagSpout = 0;
             int needsSchedulingFlag=0;
 
-            for (TopologyDetails t_name : topologyDetails) {
+            for (TopologyDetails t : topologyDetails) {
 
-                needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t_name, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout);
+                //
+                    Map<String, String> vm_Name_supIDMap = new HashMap<>();
+                vm_Name_supIDMap = StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
+                System.out.println("vm_Name_supIDMap-\n" + vm_Name_supIDMap + "\n");
+            Set<String> boltName_Set_FromConf = new HashSet<>();
+            Set<String> workerslot_Set_FromConf = new HashSet<>();
+            List<String> FullMappingRes_conf = new ArrayList();
+                //
 
+                needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
+                System.out.println("\n\n\t\t**********CONF state**********");
+                System.out.println("Conf State set-" + boltName_Set_FromConf);
+                System.out.println("Conf State set-" + workerslot_Set_FromConf);
+                StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+                //
                 if (needsSchedulingFlag == 1) {
 
-                    StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
+//                    StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
                     Map<String, SupervisorDetails> supervisors = new HashMap<String, SupervisorDetails>();
                     JSONParser parser = new JSONParser();
                     //logging: getting supervisor names
@@ -58,12 +71,12 @@
                         }
                         System.out.println(s.getAllPorts() + "\n");
                     }
+//c2
+//                    Map<String, String> vm_Name_supIDMap = new HashMap<>();
+//                    vm_Name_supIDMap = StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
+//                    System.out.println("vm_Name_supIDMap-\n" + vm_Name_supIDMap + "\n");
 
-                    Map<String, String> vm_Name_supIDMap = new HashMap<>();
-                    vm_Name_supIDMap = StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
-                    System.out.println("vm_Name_supIDMap-\n" + vm_Name_supIDMap + "\n");
-
-                    for (TopologyDetails t : topologyDetails) {
+//                    for (TopologyDetails t : topologyDetails) {
 
                         StormTopology topology = t.getTopology();
                         String topoID = t.getId();
@@ -72,9 +85,9 @@
                         Map<ExecutorDetails, String> execToboltNameMapping = new HashMap<ExecutorDetails, String>();
                         Map<String, Bolt> bolts = topology.get_bolts();
                         Map<String, SpoutSpec> spouts = topology.get_spouts();
-                        Set<String> boltName_Set_FromConf = new HashSet<>();
-                        Set<String> workerslot_Set_FromConf = new HashSet<>();
-                        List<String> FullMappingRes_conf = new ArrayList();
+//                        Set<String> boltName_Set_FromConf = new HashSet<>();
+//                        Set<String> workerslot_Set_FromConf = new HashSet<>();
+//                        List<String> FullMappingRes_conf = new ArrayList();
                         String site = null;
                         String slotID = null;
                         String threadCount = null;
@@ -84,12 +97,9 @@
                             Bolt bolt = bolts.get(boltName);
                             System.out.println("\n\n\nBolt name is -" + boltName + "-full bolt-" + bolt + "-bolt_get Common result-" + bolt.get_common());
 
-                            //parsing code from topology config
-                            //                    Firstmap.put("site","uh#slot1,1,1/uh#slot2,1");
 
-                            //                    JSONObject conf = (JSONObject) parser.parse(bolt.get_common().get_json_conf());
-
-                            StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);//state from conf
+//c1
+//                            StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);//state from conf
                             String boltMappingConfig = JsonFIleReader.getJsonConfig(jsonfilepath, topoName, boltName);
                             String boltMappingThreads = JsonFIleReader.getJsonThreadCount(jsonfilepath, topoName, boltName);
 //                        System.out.println("-boltMappingConfig-" + boltMappingConfig + "-boltMappingThreads-" + boltMappingThreads);
@@ -152,32 +162,6 @@
                                 System.out.println("vmSlotExecMapping key/value set-" + vmSlotExecMapping);
 
                             }
-                            //                    for (String exe:vmSlotExecMapping.keySet()){
-                            //                        System.out.println(vmSlotExecMapping.get(exe));
-                            //                    }
-
-                            //                    System.out.println("vmSlotExecMapping valueset-"+vmSlotExecMapping.values());
-
-
-                            //                    System.out.println("checking null in supervisor or/not-" + ((String) conf.get(SITE)).split(",")[0].split("#")[0]);
-                            //
-                            //                    if (conf.get(SITE) != null && supervisors.get(((String) conf.get(SITE)).split(",")[0].split("#")[0]) != null) {  //verify the site name on
-                            //                        site = ((String) conf.get(SITE)).split(",")[0].split("#")[0];
-                            //                        slotID = ((String) conf.get(SITE)).split(",")[0].split("#")[1];
-                            //                        threadCount = ((String) conf.get(SITE)).split(",")[2];
-                            //                        System.out.println("TEST:inside topology loop site for that bolt is-" + site + "-given config are -" + site + "-" + slotID + "-" + threadCount);
-                            //                    }
-
-
-                            //                    //logging :getting deatils of worker slot
-                            //                    for (WorkerSlot w : workerSlots) {
-                            //                        System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort());
-                            //                    }
-                            //                    for(int i=0;i<workerSlots.size();i++)
-                            //                    {
-                            //                        System.out.println("workerSlot.get() function " +workerSlots.get(i));
-                            //                    }
-                            //
 
                             //may need to open USE:syso
                             System.out.println("\n\ngetting putExecListToboltnamemapping-");
@@ -186,6 +170,7 @@
 
                         //code for scheduling bolts
                         for (String s : vmSlotExecMapping.keySet()) {
+                            System.out.println("Bolt Schedling Started");
                             String vm_name = s.split("#")[0];
                             int port_number_from_Conf = Integer.parseInt(s.split("#")[1]);
 //                        System.out.println("VM name is -" + vm_name+"port_number_from_Conf is-"+port_number_from_Conf);
@@ -204,7 +189,7 @@
                                     System.out.println("No Worker slot is empty for this task-" + s);
                                 }
                             }
-
+                            System.out.println("Bolt Schedling Done");
 //                        //logging :getting deatils of worker slot
 //                        for (WorkerSlot w : workerSlots) {
 //                            System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort());
@@ -243,14 +228,14 @@
                         System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
                         UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping, cluster);
 
-                        System.out.println("\n\n\t\t**********CONF state**********");
-                        System.out.println("Conf State set-" + boltName_Set_FromConf);
-                        System.out.println("Conf State set-" + workerslot_Set_FromConf);
-                        StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
-                    }
+//                        System.out.println("\n\n\t\t**********CONF state**********");
+//                        System.out.println("Conf State set-" + boltName_Set_FromConf);
+//                        System.out.println("Conf State set-" + workerslot_Set_FromConf);
+//                        StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+//                    }
 
                 } else {
-                    System.out.println("\n\n\t\t\t\t--None topo needs scheduling--");
+                    System.out.println("\n\n\t\t\t\t-- Topo does not need scheduling--"+t);
                 }
             }
         }
