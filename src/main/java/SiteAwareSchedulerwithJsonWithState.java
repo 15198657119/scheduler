@@ -49,7 +49,7 @@
                 if (needsSchedulingFlag == 1) {
 
 //                    StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
-                    Map<String, SupervisorDetails> supervisors = new HashMap<String, SupervisorDetails>();
+                    Map<String, SupervisorDetails> supervisors = new HashMap<>();
                     JSONParser parser = new JSONParser();
                     //logging: getting supervisor names
                     {
