@@ -42,15 +42,12 @@
                 workerslot_Set_FromConf.add(_wrkrSlot);
                 fullMappingRes_conf.add(res);
                 //use setVmNameSupervisorMapping fro setting values
-
             }
         }
-
-
     }
 
 
-        public static void createStateFromConf(Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf, Map<String, Integer> boltName_IntegerMap, Map<String, Integer> slotName_IntegerMap)
+        public static void createStateFromConf(Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf, Map<String, Integer> boltName_IntegerMap, Map<String, Integer> slotName_IntegerMap, HashMap<String, HashMap<String, Integer>> execToboltNameMap_from_Conf)
     {
 //        Map<String, Integer>
         boltName_IntegerMap.putAll(UtilityFunction.StringsetToSortedIndexedList(boltName_Set_FromConf));
@@ -67,7 +64,16 @@
             String _boltFromConf=(s1.split(",")[1]);
             int _entryFromConf=Integer.parseInt(s1.split(",")[2]);
             execToboltNameMatrix_from_Conf[slotName_IntegerMap.get(_workrSlotFromConf)][boltName_IntegerMap.get(_boltFromConf)]=_entryFromConf;
+
+            if (execToboltNameMap_from_Conf.containsKey(_workrSlotFromConf)) {
+                execToboltNameMap_from_Conf.get(_workrSlotFromConf).put(_boltFromConf, _entryFromConf);
+            } else {
+                HashMap<String, Integer> temp = new HashMap<>();
+                temp.put(_boltFromConf, _entryFromConf);
+                execToboltNameMap_from_Conf.put(_workrSlotFromConf, temp);
+            }
         }
+//        System.out.println("execToboltNameMap_from_Conf-"+execToboltNameMap_from_Conf);
         System.out.println("printing a 2-D array for execToboltNameMatrix_from_Conf - "+Arrays.deepToString(execToboltNameMatrix_from_Conf));
     }
 

@@ -235,7 +235,8 @@
                         //printing current assignment
 //                    execToslotMapping=UtilityFunction.removeSpout_CurrentExectoSlotMapping(spout_executors,execToslotMapping);//removing spout_executors from  mapping
                         System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
-                    CurrentexecToboltNameMatrix=UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping,test_boltname_NumberPair,test_workeSlot_NumberPair);
+                    //comment to avoid error
+//                    CurrentexecToboltNameMatrix=UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping,test_boltname_NumberPair,test_workeSlot_NumberPair, currentexecToboltNameMap);
 
 
                 } else {
