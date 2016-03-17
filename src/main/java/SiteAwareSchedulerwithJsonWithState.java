@@ -40,7 +40,8 @@
                 StateFromConf.createSetFromConf(jsonfilepath,t,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
                 System.out.println("\n\nboltName_Set_FromConf-" + boltName_Set_FromConf);
                 System.out.println("workerslot_Set_FromConf-" + workerslot_Set_FromConf);
-                StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+                //TODO:check bofore running
+//                StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf, boltName_IntegerMap, slotName_IntegerMap);
                 System.out.println("\n\t\t\t\t--Conf state done--");
 
 
@@ -74,8 +75,8 @@
                         Map<String, String> metadata = (Map<String, String>) s.getSchedulerMeta();
                         if (metadata.get(SITE) != null) {
                             System.out.println("TEST: checking if metadata is set on this supervisor....");
-                            supervisors.put((String) metadata.get(SITE), s);
-                            System.out.println("TEST:Value for this supervisor-" + (String) metadata.get(SITE));
+                            supervisors.put(metadata.get(SITE), s);
+                            System.out.println("TEST:Value for this supervisor-" + metadata.get(SITE));
                         }
                         System.out.println(s.getAllPorts() + "\n");
                     }

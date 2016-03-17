@@ -39,11 +39,19 @@
                 Set<String> workerslot_Set_FromConf = new HashSet<>();
                 List<String> FullMappingRes_conf = new ArrayList();
                 StateFromConf.createSetFromConf(jsonfilepath,t,vm_Name_supIDMap,boltName_Set_FromConf,workerslot_Set_FromConf,FullMappingRes_conf);
-                System.out.println("\n\nboltName_Set_FromConf-" + boltName_Set_FromConf);
-                System.out.println("workerslot_Set_FromConf-" + workerslot_Set_FromConf);
+
+//  System.out.println("\n\nboltName_Set_FromConf-" + boltName_Set_FromConf);
+//                System.out.println("workerslot_Set_FromConf-" + workerslot_Set_FromConf);
+
                 int row_size_fromConf=workerslot_Set_FromConf.size();
                 int column_size_fromConf=boltName_Set_FromConf.size();
-                StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);
+
+                HashMap<String, Integer> boltName_IntegerMap = new HashMap<>();
+                HashMap<String, Integer> slotName_IntegerMap = new HashMap<>();
+
+                StateFromConf.createStateFromConf(boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf, boltName_IntegerMap, slotName_IntegerMap);
+                System.out.println("slotName_IntegerMap" + "-" + slotName_IntegerMap + "-" + boltName_IntegerMap + "-" + FullMappingRes_conf);
+
                 System.out.println("\n\t\t\t\t--Conf state done--");
 
 
@@ -63,8 +71,7 @@
 
                 System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
                 System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
-                System.out.println("CurrentexecToboltNameMatrix-"+CurrentexecToboltNameMatrix);
-
+//                System.out.println("CurrentexecToboltNameMatrix-"+CurrentexecToboltNameMatrix);
 
                 System.out.println("CurrentexecToboltNameMatrix-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
                 System.out.println("\t\t\t\tTest:End------------------------------------\n\n");
@@ -93,8 +100,8 @@
                         Map<String, String> metadata = (Map<String, String>) s.getSchedulerMeta();
                         if (metadata.get(SITE) != null) {
                             System.out.println("TEST: checking if metadata is set on this supervisor....");
-                            supervisors.put((String) metadata.get(SITE), s);
-                            System.out.println("TEST:Value for this supervisor-" + (String) metadata.get(SITE));
+                            supervisors.put(metadata.get(SITE), s);
+                            System.out.println("TEST:Value for this supervisor-" + metadata.get(SITE));
                         }
                         System.out.println(s.getAllPorts() + "\n");
                     }
@@ -140,9 +147,6 @@
 //                        System.out.println("mappings -" + mappings);
                             Iterator mapping_itr = mappings.iterator();
 
-                            //idea1:using first as key
-                            //                    String KeyforMap=mappings.get(0).split(",")[0];
-                            //                    vmSlotExecMapping.put(KeyforMap, executors);
 
                             int curentBoltCount = Integer.parseInt(boltMappingThreads); //conf thread count here
                             int totalExecconf = 0;
@@ -157,13 +161,7 @@
                                 System.out.println("\t\t*********Please kill topology****");
                                 System.out.println("\t\ttopology name----" + t.getName());
                                 System.out.println("\t\t*************EXITING**************\n\n\n\n");
-                            }
-
-                            //                    if (executors != null && executors.size() != totalExecconf) {
-                            //                        System.out.println("**********Parallelism Hint and Conf value are not equal !!! Please see Map in topo for bolt -" + name + "*********EXITING****");
-                            //
-                            //                    }
-                            else {
+                            } else {
 
                                 UtilityFunction.putExecListToboltnameMapping(boltName, executors, execToboltNameMapping);//check for null first
                                 while (mapping_itr.hasNext() && executors != null) {

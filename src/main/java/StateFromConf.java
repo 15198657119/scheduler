@@ -46,20 +46,19 @@
             }
         }
 
-//    return FullMappingRes_conf;
+
     }
 
 
-
-
-
-    public static void createStateFromConf(Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf)
+        public static void createStateFromConf(Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf, Map<String, Integer> boltName_IntegerMap, Map<String, Integer> slotName_IntegerMap)
     {
-        Map<String, Integer> boltName_IntegerMap = UtilityFunction.StringsetToSortedIndexedList(boltName_Set_FromConf);
-        Map<String, Integer> slotName_IntegerMap =UtilityFunction.WorkerSlotStringsetToSortedIndexedList(workerslot_Set_FromConf);
-        System.out.println("StateFromConf_boltName_IntegerMap-"+boltName_IntegerMap);
-        System.out.println("StateFromConf_slotName_IntegerMap-"+slotName_IntegerMap);
-        System.out.println("\nfullMappingRes_conf-"+fullMappingRes_conf);
+//        Map<String, Integer>
+        boltName_IntegerMap.putAll(UtilityFunction.StringsetToSortedIndexedList(boltName_Set_FromConf));
+//        Map<String, Integer>
+        slotName_IntegerMap.putAll(UtilityFunction.WorkerSlotStringsetToSortedIndexedList(workerslot_Set_FromConf));
+//        System.out.println("StateFromConf_boltName_IntegerMap-"+boltName_IntegerMap);
+//        System.out.println("StateFromConf_slotName_IntegerMap-"+slotName_IntegerMap);
+//        System.out.println("\nfullMappingRes_conf-"+fullMappingRes_conf);
 
 
         int[][] execToboltNameMatrix_from_Conf=new int[slotName_IntegerMap.size()][boltName_IntegerMap.size()];
@@ -84,7 +83,7 @@
             SupervisorDetails   _Details=supID_Details_Mapping.get(_supID);
             Map<String, String> metadata = (Map<String, String>) _Details.getSchedulerMeta();
             if (metadata.get(SITE) != null) {
-                String vm_name=(String) metadata.get(SITE);
+                String vm_name = metadata.get(SITE);
     //                System.out.println("TEST:-vm_name-" + vm_name+"-_supID-"+_supID);
                 _vm_Name_supIDMap.put(vm_name,_supID);
             }

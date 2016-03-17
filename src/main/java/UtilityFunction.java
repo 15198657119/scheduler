@@ -95,13 +95,13 @@
                 for (ExecutorDetails key : execToslotMapping.keySet()) {
                     test_SlotSet.add(execToslotMapping.get(key));
                 }
-            test_workeSlot_NumberPair =UtilityFunction.WorkerSlotsetToSortedIndexedList(test_SlotSet);
+            test_workeSlot_NumberPair.putAll(UtilityFunction.WorkerSlotsetToSortedIndexedList(test_SlotSet));
 
             Set<String> test_NameSet = new HashSet<String>();
                 for (ExecutorDetails key : execToboltNameMapping.keySet()) {
                     test_NameSet.add(execToboltNameMapping.get(key));
                 }
-            test_boltname_NumberPair=UtilityFunction.StringsetToSortedIndexedList(test_NameSet);
+            test_boltname_NumberPair.putAll(UtilityFunction.StringsetToSortedIndexedList(test_NameSet));
 
 
 
@@ -244,9 +244,9 @@
             return _test_workeSlot_NumberPair;
         }
 
-        public static Map<String, Integer> StringsetToSortedIndexedList(Set<String> _test_NameSet){
+        public static HashMap<String, Integer> StringsetToSortedIndexedList(Set<String> _test_NameSet) {
             List<String> test_Namelist = new ArrayList<String>(_test_NameSet);
-            Map<String, Integer> _test_boltname_NumberPair = new HashMap<>();
+            HashMap<String, Integer> _test_boltname_NumberPair = new HashMap<>();
             int testcount=0;
 //            System.out.println("old name list-" + test_Namelist);
             Collections.sort(test_Namelist);
@@ -301,9 +301,14 @@
             return execToboltNameMapping;
         }
 
+
+//        public static void getCurrentExectoSlotmapping()
+//        {
+//
+//        }
+
         public static int[][] createCurrentMatrixDemo(TopologyDetails t, Cluster cluster, Map<String, Integer> test_boltname_NumberPair, Map<WorkerSlot, Integer> test_workeSlot_NumberPair, int row_size_fromConf, int column_size_fromConf, Map<ExecutorDetails, String> executorDetailsStringMap){
 
-//            StormTopology topology = t.getTopology();
             String topoID = t.getId();
 
             Map<ExecutorDetails, WorkerSlot> execToslotMapping = new HashMap<ExecutorDetails, WorkerSlot>();
