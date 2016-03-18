@@ -17,7 +17,7 @@
         {
             SchedulerAssignment sa =  cluster.getAssignmentById(topoID);
 
-            Map<ExecutorDetails,WorkerSlot> execToslotMapping  = new HashMap<ExecutorDetails, WorkerSlot>();
+            Map<ExecutorDetails, WorkerSlot> execToslotMapping = new HashMap<>();
             System.out.println("SchedulerAssignment-"+sa);
             if(sa!=null) {
                 execToslotMapping = sa.getExecutorToSlot();
@@ -82,7 +82,7 @@
         {
 //Actual map-            currentexecToboltNameMap
             //make list of list here
-            Map<WorkerSlot,String> slotToBoltNameMapping  = new HashMap<WorkerSlot,String>();
+            Map<WorkerSlot, String> slotToBoltNameMapping = new HashMap<>();
             System.out.println("Current state JOINED Mapping--\n\n");
             //get list of ports as rows
             //get list of boltnames as columns
@@ -128,25 +128,22 @@
                         }
 
 
-                        //
-                        if (currentexecToboltNameMap.containsKey(workerSlot)) {
-                            if (currentexecToboltNameMap.get(workerSlot).containsKey(_boltname)) {
-                                int prev_entry = currentexecToboltNameMap.get(workerSlot).get(_boltname);
-                                currentexecToboltNameMap.get(workerSlot).put(_boltname, prev_entry + 1);
-                            }
+                        if (currentexecToboltNameMap != null || currentexecToboltNameMap.size() != 0) {
+                            //
+                            if (currentexecToboltNameMap.containsKey(workerSlot)) {
+                                if (currentexecToboltNameMap.get(workerSlot).containsKey(_boltname)) {
+                                    int prev_entry = currentexecToboltNameMap.get(workerSlot).get(_boltname);
+                                    currentexecToboltNameMap.get(workerSlot).put(_boltname, prev_entry + 1);
                         } else {
-                            HashMap<String, Integer> temp = new HashMap<>();
-                            temp.put(_boltname, 1);
-                            currentexecToboltNameMap.put(workerSlot, temp);
+                                    currentexecToboltNameMap.get(workerSlot).put(_boltname, 1);
                         }
-                        //
+                            } else {
+                                HashMap<String, Integer> temp = new HashMap<>();
+                                temp.put(_boltname, 1);
+                                currentexecToboltNameMap.put(workerSlot, temp);
+                            }
+                        }
 
-
-    //                    if(execToslotMapping.get(exec).getPort()==i){
-    //                        String _bname=execToboltNameMapping.get(exec);
-    //                        int entry=exec.getEndTask()-exec.getStartTask()+1;
-    //                        execToboltNameMatrix[i][_boltname_NumberPair.get(_bname)]=entry;
-    //                        System.out.println("i-"+i+"-_boltname_NumberPair.get(_bname)-"+_boltname_NumberPair.get(_bname)+"-entry-"+entry);
                         }
             System.out.println("currentexecToboltNameMap in join -" + currentexecToboltNameMap);
             System.out.println("printing a current 2-D array-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
@@ -169,7 +166,7 @@
 
                 Map<String, Bolt> bolts = topology.get_bolts();
                 Map<String, SpoutSpec> spouts = topology.get_spouts();
-                List<ExecutorDetails> executors = new ArrayList<ExecutorDetails>();
+            List<ExecutorDetails> executors = new ArrayList<>();
 
 
                 for (String boltName : bolts.keySet()) {
@@ -342,11 +339,7 @@
         }
 
 
-        public static void findMatrixDiff(Map<String, Integer> current_boltname_numberPair, Map<WorkerSlot, Integer> current_workeSlot_numberPair, int[][] currentexecToboltNameMatrix, HashMap<String, Integer> boltName_integerMap, HashMap<String, Integer> slotName_integerMap, List<String> fullMappingRes_conf, Map<String, List<ExecutorDetails>> vmSlotExecMapping) {
 
-
-            System.out.println("\n\nFinding matrix diff-- \n");
-        }
 
         public static void createSlotToExeListmappingForScheduling(TopologyDetails t, Cluster cluster, String SITE, Map<String, List<ExecutorDetails>> vmSlotExecMapping, StormTopology topology, Map<String, SupervisorDetails> supervisors, String topoName, String jsonfilepath) {
             {
@@ -457,5 +450,6 @@
                 }
             }
         }
+
 
     }

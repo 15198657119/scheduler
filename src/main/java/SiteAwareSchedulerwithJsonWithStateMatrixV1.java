@@ -4,6 +4,7 @@ package main.java;
 import backtype.storm.generated.SpoutSpec;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.scheduler.*;
+import org.json.simple.parser.JSONParser;
 
 import java.util.*;
 
@@ -53,7 +54,7 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
             System.out.println("\n\t\t\t\t--Conf state done--");
 
 
-            System.out.println("\n\nTest:Start");
+            System.out.println("\n\nTest:Current state Start-----------------------------------------");
             HashMap<WorkerSlot, HashMap<String, Integer>> currentexecToboltNameMap = new HashMap<>();
             Map<String, Integer> current_boltname_NumberPair = new HashMap<>();
             Map<WorkerSlot, Integer> current_workeSlot_NumberPair = new HashMap<>();
@@ -62,70 +63,94 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
             Map<ExecutorDetails, String> _executorDetailsStringMapDummy = UtilityFunction.currentExecListToboltnameDemo(t, cluster);
             if (_executorDetailsStringMapDummy.size() != 0)
                 this.executorDetailsStringMap = _executorDetailsStringMapDummy;
-
             System.out.println("executorDetailsStringMap-" + this.executorDetailsStringMap + "\n");
-            if (executorDetailsStringMap != null)
+            if (executorDetailsStringMap != null) {
                 currentexecToboltNameMatrix = UtilityFunction.createCurrentMatrixDemo(t, cluster, current_boltname_NumberPair, current_workeSlot_NumberPair, row_size_fromConf, column_size_fromConf, this.executorDetailsStringMap, currentexecToboltNameMap);
-            System.out.println("CurrentexecToboltNameMatrix-" + Arrays.deepToString(currentexecToboltNameMatrix));
-            System.out.println("currentexecToboltNameMap inside main function -" + currentexecToboltNameMap);
 
-            System.out.println("UtilityFunction_workeSlot_NumberPair-" + current_workeSlot_NumberPair);
-            System.out.println("UtilityFunction_boltname_NumberPair-" + current_boltname_NumberPair);
+            }
+            System.out.println("CurrentexecToboltNameMatrix-" + Arrays.deepToString(currentexecToboltNameMatrix));
+
+            System.out.println("currentexecToboltNameMap inside main function -" + currentexecToboltNameMap + "\n\n");
+
+            System.out.println("UtilityFunction_workeSlot_NumberPair-" + current_workeSlot_NumberPair + "\n\n");
+            System.out.println("UtilityFunction_boltname_NumberPair-" + current_boltname_NumberPair + "\n\n");
 //                System.out.println("CurrentexecToboltNameMatrix-"+CurrentexecToboltNameMatrix);
 
             System.out.println("CurrentexecToboltNameMatrix-" + Arrays.deepToString(currentexecToboltNameMatrix));
-            System.out.println("\t\t\t\tTest:End------------------------------------\n\n");
+            System.out.println("\t\t\t\tTest:Current state End------------------------------------\n\n");
 
 
-            needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout, vm_Name_supIDMap);
+//            needsSchedulingFlag = UtilityFunction.setFlagforScheduling(t, cluster, jsonfilepath, needsSchedulingFlagBolt, needsSchedulingFlagSpout, vm_Name_supIDMap);
 
 
-            if (needsSchedulingFlag == 1) {
+//            if (needsSchedulingFlag == 1) {
+
                 Map<String, List<ExecutorDetails>> vmSlotExecMapping = new HashMap<String, List<ExecutorDetails>>();
                 Map<String, SupervisorDetails> supervisors = new HashMap<>();
                 StormTopology topology = t.getTopology();
                 String topoName = t.getName();
                 Map<String, SpoutSpec> spouts = topology.get_spouts();
-
-                UtilityFunction.createSlotToExeListmappingForScheduling(t, cluster, SITE, vmSlotExecMapping, topology, supervisors, topoName, jsonfilepath);
-                System.out.println("After commenting vmSlotExecMapping is -" + vmSlotExecMapping);
-
-                UtilityFunction.findMatrixDiff(current_boltname_NumberPair, current_workeSlot_NumberPair, currentexecToboltNameMatrix, boltName_IntegerMap, slotName_IntegerMap, FullMappingRes_conf, vmSlotExecMapping);
-
-                //code for scheduling bolts
-                for (String s : vmSlotExecMapping.keySet()) {
-                    System.out.println("Bolt Schedling Started");
-                    String vm_name = s.split("#")[0];
-                    int port_number_from_Conf = Integer.parseInt(s.split("#")[1]);
-//                        System.out.println("VM name is -" + vm_name+"port_number_from_Conf is-"+port_number_from_Conf);
-                    SupervisorDetails supervisor = supervisors.get(vm_name);
-                    List<WorkerSlot> workerSlots = cluster.getAvailableSlots(supervisor);
-
-                    if (vmSlotExecMapping.get(s) != null) {
-                        if (!workerSlots.isEmpty()) {
-                            for (WorkerSlot w : workerSlots) {
-                                if (w.getPort() == port_number_from_Conf) {
-                                    System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort() + "-port_number_from_Conf-" + port_number_from_Conf);
-                                    cluster.assign(w, t.getId(), vmSlotExecMapping.get(s));
-                                }
-                            }
-                        } else {
-                            System.out.println("No Worker slot is empty for this task-" + s);
-                        }
-                    }
-                    System.out.println("\n\t\t-- Bolt Schedling Done --");
-//                        //logging :getting deatils of worker slot
-//                        for (WorkerSlot w : workerSlots) {
-//                            System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort());
-//                        }
+//setting superviosor data
+            JSONParser parser = new JSONParser();
+            //logging: getting supervisor names
+            {
+                for (String s : cluster.getSupervisors().keySet()) {
+                    System.out.println("supervisor names are -" + s);
                 }
+            }
+            //
 
-                Map<ExecutorDetails, WorkerSlot> execToslotMapping = new HashMap<ExecutorDetails, WorkerSlot>();
+            System.out.println("TEST:caching supervisors indexed by their sites in a hash map...");
+            for (SupervisorDetails s : cluster.getSupervisors().values()) {
+//                    System.out.println("TEST:supervisor name-" + s);
+                Map<String, String> metadata = (Map<String, String>) s.getSchedulerMeta();
+                if (metadata.get(SITE) != null) {
+                    System.out.println("TEST: checking if metadata is set on this supervisor....");
+                    supervisors.put(metadata.get(SITE), s);
+                    System.out.println("TEST:Value for this supervisor-" + metadata.get(SITE));
+                }
+                System.out.println(s.getAllPorts() + "\n");
+            }
+            //
+//                UtilityFunction.createSlotToExeListmappingForScheduling(t, cluster, SITE, vmSlotExecMapping, topology, supervisors, topoName, jsonfilepath);
+//                System.out.println("After commenting vmSlotExecMapping is -" + vmSlotExecMapping + "\n" + currentexecToboltNameMap);
+
+            ScheduleFromMapDiff.findMatrixDiff(vmSlotExecMapping, currentexecToboltNameMap, execToboltNameMap_from_Conf, vm_Name_supIDMap, supervisors, cluster, t);
+
+//                //code for scheduling bolts
+//                for (String s : vmSlotExecMapping.keySet()) {
+//                    System.out.println("Bolt Schedling Started");
+//                    String vm_name = s.split("#")[0];
+//                    int port_number_from_Conf = Integer.parseInt(s.split("#")[1]);
+////                        System.out.println("VM name is -" + vm_name+"port_number_from_Conf is-"+port_number_from_Conf);
+//                    SupervisorDetails supervisor = supervisors.get(vm_name);
+//                    List<WorkerSlot> workerSlots = cluster.getAvailableSlots(supervisor);
+//
+//                    if (vmSlotExecMapping.get(s) != null) {
+//                        if (!workerSlots.isEmpty()) {
+//                            for (WorkerSlot w : workerSlots) {
+//                                if (w.getPort() == port_number_from_Conf) {
+//                                    System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort() + "-port_number_from_Conf-" + port_number_from_Conf);
+//                                    cluster.assign(w, t.getId(), vmSlotExecMapping.get(s));
+//                                }
+//                            }
+//                        } else {
+//                            System.out.println("No Worker slot is empty for this task-" + s);
+//                        }
+//                    }
+//                    System.out.println("\n\t\t-- Bolt Schedling Done --");
+////                        //logging :getting deatils of worker slot
+////                        for (WorkerSlot w : workerSlots) {
+////                            System.out.println("worker slots are - nodeID-" + w.getNodeId() + "-PortNumber-" + w.getPort());
+////                        }
+//                }
+
+//                Map<ExecutorDetails, WorkerSlot> execToslotMapping = new HashMap<ExecutorDetails, WorkerSlot>();
 //                        execToslotMapping = UtilityFunction.getCurrentExectoSlotMapping(cluster, topoID);//includes spout also
 
 
                 List<ExecutorDetails> spout_executors = new ArrayList<>();
-                System.out.println("execToslotMapping-" + execToslotMapping);
+//                System.out.println("execToslotMapping-" + execToslotMapping);
                 for (String spoutName : spouts.keySet()) {
                     String site1 = null;
                     SpoutSpec spout = spouts.get(spoutName);
@@ -148,13 +173,14 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
                     }
                 }
 
-                System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
+//                System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
 //                    currentexecToboltNameMatrix=UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, execToboltNameMapping,current_boltname_NumberPair,current_workeSlot_NumberPair);
 
 
-            } else {
-                System.out.println("\n\n\t\t\t\t-- Topo does not need scheduling--" + t.getName());
-            }
+//            }
+//            else {
+//                System.out.println("\n\n\t\t\t\t-- Topo does not need scheduling--" + t.getName());
+//            }
         }
     }
 
