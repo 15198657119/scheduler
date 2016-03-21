@@ -60,7 +60,7 @@
                 Map<WorkerSlot, Integer> current_workeSlot_NumberPair = new HashMap<>();
 
                 int[][] currentexecToboltNameMatrix = new int[row_size_fromConf][column_size_fromConf];
-                Map<ExecutorDetails, String> _executorDetailsStringMapDummy = UtilityFunction.currentExecListToboltnameDemo(t, cluster);
+                Map<ExecutorDetails, String> _executorDetailsStringMapDummy = UtilityFunction.getcurrentExecListToboltname(t, cluster);
                 if(_executorDetailsStringMapDummy.size()!=0)
                     this.executorDetailsStringMap = _executorDetailsStringMapDummy;
 

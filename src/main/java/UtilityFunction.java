@@ -49,16 +49,6 @@
             return execToslotMapping;
         }
 
-        public static Map<ExecutorDetails, WorkerSlot> removeSpout_CurrentExectoSlotMapping(List<ExecutorDetails> _spout_executors,Map<ExecutorDetails,WorkerSlot> _execToslotMapping){
-            System.out.println("Before removal _execToslotMapping-"+_execToslotMapping);
-            for (ExecutorDetails e:_spout_executors)
-            {
-                _execToslotMapping.remove(e);
-            }
-            System.out.println("After removal _execToslotMapping-"+_execToslotMapping);
-            return _execToslotMapping;
-        }
-
         public static void putExecListToboltnameMapping(String boltName, List<ExecutorDetails> executors, Map<ExecutorDetails, String> execToboltNameMapping){
 
             System.out.println("putExecListToboltnamemapping----");
@@ -71,27 +61,22 @@
         }
 
 //just for reading no action
-        public static void getExecListToboltnameMapping(Map<ExecutorDetails, String> execToboltNameMapping){
+public static void printExecListToboltnameMapping(Map<ExecutorDetails, String> execToboltNameMapping) {
             for (ExecutorDetails key : execToboltNameMapping.keySet()) {
                 System.out.println(key + " - " + execToboltNameMapping.get(key));
 
             }
         }
 
-        public static int[][] joinExecToboltNameAndgetCurrentExectoSlotmapping(Map<ExecutorDetails, WorkerSlot> execToslotMapping, Map<ExecutorDetails, String> execToboltNameMapping, Map<String, Integer> test_boltname_NumberPair, Map<WorkerSlot, Integer> test_workeSlot_NumberPair, HashMap<WorkerSlot, HashMap<String, Integer>> currentexecToboltNameMap)
+        public static int[][] joinExecToboltNameAndExecToslotMapping(Map<ExecutorDetails, WorkerSlot> execToslotMapping, Map<ExecutorDetails, String> execToboltNameMapping, Map<String, Integer> test_boltname_NumberPair, Map<WorkerSlot, Integer> test_workeSlot_NumberPair, HashMap<WorkerSlot, HashMap<String, Integer>> currentState_execToboltNameMap)
         {
-//Actual map-            currentexecToboltNameMap
-            //make list of list here
-            Map<WorkerSlot, String> slotToBoltNameMapping = new HashMap<>();
-            System.out.println("Current state JOINED Mapping--\n\n");
-            //get list of ports as rows
-            //get list of boltnames as columns
-            //entry is size of exec_list from getCurrentExectoSlotMapping output
+//Actual map holding current state-            currentState_execToboltNameMap
 
+            System.out.println("Current state JOINED Mapping--\n\n");
+            //get list of ports as rows ,get list of boltnames as columns,entry is size of exec_list from getCurrentExectoSlotMapping output
 
             String boltName=null;
             WorkerSlot w=null;
-
             Set<WorkerSlot> test_SlotSet = new HashSet<WorkerSlot>();
                 for (ExecutorDetails key : execToslotMapping.keySet()) {
                     test_SlotSet.add(execToslotMapping.get(key));
@@ -102,21 +87,17 @@
                 for (ExecutorDetails key : execToboltNameMapping.keySet()) {
                     test_NameSet.add(execToboltNameMapping.get(key));
                 }
-            test_boltname_NumberPair.putAll(UtilityFunction.StringsetToSortedIndexedList(test_NameSet));
-
-
-
+            test_boltname_NumberPair.putAll(UtilityFunction.StringsetToSortedIndexedMap(test_NameSet));
 //            System.out.println("UtilityFunction_workeSlot_NumberPair-"+test_workeSlot_NumberPair);
 //            System.out.println("UtilityFunction_boltname_NumberPair-"+test_boltname_NumberPair);
-
-
 
             int[][] CurrentexecToboltNameMatrix=new int[test_workeSlot_NumberPair.size()][test_boltname_NumberPair.size()];
                     for (ExecutorDetails exec : execToslotMapping.keySet()) {
 
                         WorkerSlot workerSlot = execToslotMapping.get(exec);
-                        String _boltname = execToboltNameMapping.get(exec);
-                        int entry=exec.getEndTask()-exec.getStartTask()+1;
+                        String _boltname = execToboltNameMapping.get(exec);//TODO: check error giving null entry on failure
+
+                        //storing state to matrix (Not used actually for now)
 //                        System.out.println("workerSlot-"+workerSlot);
                         int row_number=test_workeSlot_NumberPair.get(workerSlot);
 //                        System.out.println("Exception-"+s+"exec"+exec);
@@ -127,28 +108,27 @@
                             System.out.println(exec + " - " + workerSlot.getPort() + "-Boltname-" + _boltname + "-row-" + row_number + "-column-" + column_number);
                         }
 
-
-                        if (currentexecToboltNameMap != null || currentexecToboltNameMap.size() != 0) {
+                        //storing state to MAP ,used further for scheduling
+                        if (currentState_execToboltNameMap != null || currentState_execToboltNameMap.size() != 0) {
                             //
-                            if (currentexecToboltNameMap.containsKey(workerSlot)) {
-                                if (currentexecToboltNameMap.get(workerSlot).containsKey(_boltname)) {
-                                    int prev_entry = currentexecToboltNameMap.get(workerSlot).get(_boltname);
-                                    currentexecToboltNameMap.get(workerSlot).put(_boltname, prev_entry + 1);
-                        } else {
-                                    currentexecToboltNameMap.get(workerSlot).put(_boltname, 1);
-                        }
+                            if (currentState_execToboltNameMap.containsKey(workerSlot)) {
+                                if (currentState_execToboltNameMap.get(workerSlot).containsKey(_boltname)) {
+                                    int prev_entry = currentState_execToboltNameMap.get(workerSlot).get(_boltname);
+                                    currentState_execToboltNameMap.get(workerSlot).put(_boltname, prev_entry + 1);
+                                } else {
+                                    currentState_execToboltNameMap.get(workerSlot).put(_boltname, 1);
+                                }
                             } else {
                                 HashMap<String, Integer> temp = new HashMap<>();
                                 temp.put(_boltname, 1);
-                                currentexecToboltNameMap.put(workerSlot, temp);
+                                currentState_execToboltNameMap.put(workerSlot, temp);
                             }
                         }
-
-                        }
-            System.out.println("currentexecToboltNameMap in join -" + currentexecToboltNameMap);
+                    }
+            System.out.println("currentexecToboltNameMap in join -" + currentState_execToboltNameMap);
             System.out.println("printing a current 2-D array-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
 
-
+            //actual state is updated by reference at currentState_execToboltNameMap Matrix is not used
             return CurrentexecToboltNameMatrix;
 
             }
@@ -239,7 +219,8 @@
         }
 
 
-        public static Map<String, Integer> WorkerSlotStringsetToSortedIndexedList(Set<String> _test_SlotSet){
+        public static Map<String, Integer> WorkerSlotStringsetToSortedIndexedMap(Set<String> _test_SlotSet) {
+
             List<String> test_Slotlist = new ArrayList<String>(_test_SlotSet);
             Map<String,Integer> _test_workeSlot_NumberPair = new HashMap<>();
             int testcount_workeSlot_NumberPair=0;
@@ -259,7 +240,7 @@
             return _test_workeSlot_NumberPair;
         }
 
-        public static HashMap<String, Integer> StringsetToSortedIndexedList(Set<String> _test_NameSet) {
+        public static HashMap<String, Integer> StringsetToSortedIndexedMap(Set<String> _test_NameSet) {
             List<String> test_Namelist = new ArrayList<String>(_test_NameSet);
             HashMap<String, Integer> _test_boltname_NumberPair = new HashMap<>();
             int testcount=0;
@@ -274,15 +255,13 @@
         }
 
 
-
-        public static Map<ExecutorDetails, String> currentExecListToboltnameDemo(TopologyDetails t, Cluster cluster){
+        public static Map<ExecutorDetails, String> getcurrentExecListToboltname(TopologyDetails t, Cluster cluster) {
             StormTopology topology = t.getTopology();
             String topoID = t.getId();
             String topoName = t.getName();
             Map<ExecutorDetails, String> execToboltNameMapping = new HashMap<ExecutorDetails, String>();
             Map<String, Bolt> bolts = topology.get_bolts();
             Map<String, SpoutSpec> spouts = topology.get_spouts();
-            int checkNullflag=0;
 
             List<ExecutorDetails> bolt_executors = new ArrayList<ExecutorDetails>();
             List<ExecutorDetails> spout_executors = new ArrayList<>();
@@ -309,15 +288,15 @@
                 }
             }
 
-            System.out.println("\n\ngetting putExecListToboltnamemapping-");
-            UtilityFunction.getExecListToboltnameMapping(execToboltNameMapping);
+            System.out.println("\n\nFull printExecListToboltnameMapping-");
+            UtilityFunction.printExecListToboltnameMapping(execToboltNameMapping);
 
             System.out.println("execToboltNameMapping size-"+execToboltNameMapping.size());
             return execToboltNameMapping;
         }
 
 
-        public static int[][] createCurrentMatrixDemo(TopologyDetails t, Cluster cluster, Map<String, Integer> test_boltname_NumberPair, Map<WorkerSlot, Integer> test_workeSlot_NumberPair, int row_size_fromConf, int column_size_fromConf, Map<ExecutorDetails, String> executorDetailsStringMap, HashMap<WorkerSlot, HashMap<String, Integer>> currentexecToboltNameMap) {
+        public static int[][] createCurrentStateMatrix(TopologyDetails t, Cluster cluster, Map<String, Integer> current_boltname_NumberPair, Map<WorkerSlot, Integer> current_workeSlot_NumberPair, int row_size_fromConf, int column_size_fromConf, Map<ExecutorDetails, String> executorDetailsStringMap, HashMap<WorkerSlot, HashMap<String, Integer>> currentState_execToboltNameMap) {
 
             String topoID = t.getId();
 
@@ -325,11 +304,10 @@
             execToslotMapping = UtilityFunction.getCurrentExectoSlotMapping(cluster, topoID);//includes spout also
 
             int[][] CurrentexecToboltNameMatrix=new int[row_size_fromConf][column_size_fromConf];
-            System.out.println("CurrentexecToboltNameMatrix-"+Arrays.deepToString(CurrentexecToboltNameMatrix));
 
             System.out.println("Before calling Join Utility function arg passed -" + execToslotMapping);
             if(execToslotMapping.size()!=0 && execToslotMapping!=null) {
-                CurrentexecToboltNameMatrix = UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping(execToslotMapping, executorDetailsStringMap, test_boltname_NumberPair, test_workeSlot_NumberPair, currentexecToboltNameMap);
+                CurrentexecToboltNameMatrix = UtilityFunction.joinExecToboltNameAndExecToslotMapping(execToslotMapping, executorDetailsStringMap, current_boltname_NumberPair, current_workeSlot_NumberPair, currentState_execToboltNameMap);
             }
             else{
                 System.out.println("UtilityFunction.joinExecToboltNameAndgetCurrentExectoSlotmapping  is not called");
@@ -364,12 +342,6 @@
                     }
                     System.out.println(s.getAllPorts() + "\n");
                 }
-//c2
-//                    Map<String, String> vm_Name_supIDMap = new HashMap<>();
-//                    vm_Name_supIDMap = StateFromConf.setVmNameSupervisorMapping(cluster, SITE);
-//                    System.out.println("vm_Name_supIDMap-\n" + vm_Name_supIDMap + "\n");
-
-//                    for (TopologyDetails t : topologyDetails) {
 
                 topology = t.getTopology();
                 String topoID = t.getId();
@@ -377,25 +349,13 @@
 
                 Map<ExecutorDetails, String> execToboltNameMapping = new HashMap<ExecutorDetails, String>();
                 Map<String, Bolt> bolts = topology.get_bolts();
-//                        Map<String, SpoutSpec> spouts = topology.get_spouts();
-//                        Set<String> boltName_Set_FromConf = new HashSet<>();
-//                        Set<String> workerslot_Set_FromConf = new HashSet<>();
-//                        List<String> FullMappingRes_conf = new ArrayList();
-                String site = null;
-                String slotID = null;
-                String threadCount = null;
-//                        Map<String, List<ExecutorDetails>> vmSlotExecMapping = new HashMap<String, List<ExecutorDetails>>();
                 for (String boltName : bolts.keySet()) {//get key and value in same loop
                     List<ExecutorDetails> executors = new ArrayList<ExecutorDetails>();
                     Bolt bolt = bolts.get(boltName);
                     System.out.println("\n\n\nBolt name is -" + boltName + "-full bolt-" + bolt + "-bolt_get Common result-" + bolt.get_common());
 
-
-//c1
-//                            StateFromConf.createSetFromConf(jsonfilepath, topoName, boltName, vm_Name_supIDMap, boltName_Set_FromConf, workerslot_Set_FromConf, FullMappingRes_conf);//state from conf
                     String boltMappingConfig = JsonFIleReader.getJsonConfig(jsonfilepath, topoName, boltName);
                     String boltMappingThreads = JsonFIleReader.getJsonThreadCount(jsonfilepath, topoName, boltName);
-//                        System.out.println("-boltMappingConfig-" + boltMappingConfig + "-boltMappingThreads-" + boltMappingThreads);
 
                     List<String> mappings = new ArrayList();
                     executors = cluster.getNeedsSchedulingComponentToExecutors(t).get(boltName);

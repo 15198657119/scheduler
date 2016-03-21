@@ -41,7 +41,7 @@
                 boltName_Set_FromConf.add(boltName);
                 workerslot_Set_FromConf.add(_wrkrSlot);
                 fullMappingRes_conf.add(res);
-                //use setVmNameSupervisorMapping fro setting values
+
             }
         }
     }
@@ -49,15 +49,13 @@
 
         public static void createStateFromConf(Set<String> boltName_Set_FromConf, Set<String> workerslot_Set_FromConf, List<String> fullMappingRes_conf, Map<String, Integer> boltName_IntegerMap, Map<String, Integer> slotName_IntegerMap, HashMap<String, HashMap<String, Integer>> execToboltNameMap_from_Conf)
     {
-//        Map<String, Integer>
-        boltName_IntegerMap.putAll(UtilityFunction.StringsetToSortedIndexedList(boltName_Set_FromConf));
-//        Map<String, Integer>
-        slotName_IntegerMap.putAll(UtilityFunction.WorkerSlotStringsetToSortedIndexedList(workerslot_Set_FromConf));
+
+        //convert sets --> sorted indexed list (Not used for actual state creation)
+        boltName_IntegerMap.putAll(UtilityFunction.StringsetToSortedIndexedMap(boltName_Set_FromConf));
+        slotName_IntegerMap.putAll(UtilityFunction.WorkerSlotStringsetToSortedIndexedMap(workerslot_Set_FromConf));
 //        System.out.println("StateFromConf_boltName_IntegerMap-"+boltName_IntegerMap);
 //        System.out.println("StateFromConf_slotName_IntegerMap-"+slotName_IntegerMap);
 //        System.out.println("\nfullMappingRes_conf-"+fullMappingRes_conf);
-
-
         int[][] execToboltNameMatrix_from_Conf=new int[slotName_IntegerMap.size()][boltName_IntegerMap.size()];
         for(String s1:fullMappingRes_conf){
             String _workrSlotFromConf=(s1.split(",")[0]);
@@ -65,6 +63,7 @@
             int _entryFromConf=Integer.parseInt(s1.split(",")[2]);
             execToboltNameMatrix_from_Conf[slotName_IntegerMap.get(_workrSlotFromConf)][boltName_IntegerMap.get(_boltFromConf)]=_entryFromConf;
 
+            //convert sets --> sorted indexed map (used to create final state map and then diff )
             if (execToboltNameMap_from_Conf.containsKey(_workrSlotFromConf)) {
                 execToboltNameMap_from_Conf.get(_workrSlotFromConf).put(_boltFromConf, _entryFromConf);
 

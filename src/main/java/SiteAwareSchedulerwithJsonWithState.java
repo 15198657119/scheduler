@@ -174,7 +174,7 @@
 
                             //may need to open USE:syso
                             System.out.println("\n\ngetting putExecListToboltnamemapping-");
-                            UtilityFunction.getExecListToboltnameMapping(execToboltNameMapping);
+                            UtilityFunction.printExecListToboltnameMapping(execToboltNameMapping);
                         }
 
                         //code for scheduling bolts

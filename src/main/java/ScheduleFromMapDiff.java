@@ -76,7 +76,7 @@ public class ScheduleFromMapDiff {
 //        {97402cb2-41ce-4d85-ab9d-c616dbec7eae:6710={Second=1}, 97402cb2-41ce-4d85-ab9d-c616dbec7eae:6709={Third=1}, 97402cb2-41ce-4d85-ab9d-c616dbec7eae:6713={Second=2},
 // 4ce82bb9-e8c2-457d-b408-1cadf0ec29e3:6719={Third=1, Second=1}, 9a897b42-1893-42bf-91d2-918e2f374df8:6702={First=1}, 4ce82bb9-e8c2-457d-b408-1cadf0ec29e3:6718={Second=6, First=1}, 4ce82bb9-e8c2-457d-b408-1cadf0ec29e3:6717={First=6}, 9a897b42-1893-42bf-91d2-918e2f374df8:6701={First=2}}
 
-    public static void findMatrixDiff(Map<String, List<ExecutorDetails>> vmSlotExecMapping, HashMap<WorkerSlot, HashMap<String, Integer>> currentexecToboltNameMap, HashMap<String, HashMap<String, Integer>> execToboltNameMap_from_Conf, Map<String, String> vm_Name_supIDMap, Map<String, SupervisorDetails> supervisors, Cluster cluster, TopologyDetails t) {
+    public static void findMatrixDiffandSchedule(HashMap<WorkerSlot, HashMap<String, Integer>> currentexecToboltNameMap, HashMap<String, HashMap<String, Integer>> execToboltNameMap_from_Conf, Map<String, String> vm_Name_supIDMap, Map<String, SupervisorDetails> supervisors, Cluster cluster, TopologyDetails t) {
         System.out.println("Inside findMatrixDiff function !!");
         Map<String, String> vm_supIDMap_Name = MapUtils.invertMap(vm_Name_supIDMap);
         System.out.println("\nexecToboltNameMap_from_Conf\n" + execToboltNameMap_from_Conf);
@@ -88,7 +88,7 @@ public class ScheduleFromMapDiff {
             System.out.println("\t\tScheduling for slot-" + slot_conf_val + "*****");
             List<ExecutorDetails> _executorDetailses = new ArrayList();
             WorkerSlot _ws = null;
-            {
+            {//TODO:contains key is comparing string with workslot type ref
                 if (!currentexecToboltNameMap.containsKey(slot_conf_key)) {//if that slot is never used get executor list for that
 
                     for (String bolt_name_from_conf : slot_conf_val.keySet()) {
@@ -121,7 +121,6 @@ public class ScheduleFromMapDiff {
                                 System.out.println("LOG2-" + _executorDetailses);
                             }
                         }
-
                         if (_executorDetailses.size() != 0 && _executorDetailses != null)
                             cluster.assign(_ws, t.getId(), _executorDetailses);
                     }
