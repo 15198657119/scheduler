@@ -66,9 +66,34 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
 
             Map<ExecutorDetails, String> _executorDetailsStringMapDummy = UtilityFunction.getcurrentExecListToboltname(topo, cluster);
             //_executorDetailsStringMapDummy will be empty after scheduling is done
-            if (_executorDetailsStringMapDummy.size() != 0)
-                this.executorDetailsStringMap = _executorDetailsStringMapDummy;
-            System.out.println("executorDetailsStringMap-" + this.executorDetailsStringMap + "\n");
+
+
+//            if (_executorDetailsStringMapDummy.size() != 0)
+//                this.executorDetailsStringMap = _executorDetailsStringMapDummy;
+
+
+            //test
+            if (_executorDetailsStringMapDummy.size() != 0) {
+                System.out.println("log7-New code");
+                if (this.executorDetailsStringMap != null) {
+                    //failure case have returned something
+                    System.out.println("log5-Inside else part");
+                    for (ExecutorDetails e : _executorDetailsStringMapDummy.keySet()) {
+                        String newBoltname = _executorDetailsStringMapDummy.get(e);
+                        if (this.executorDetailsStringMap.containsKey(e)) {
+                            this.executorDetailsStringMap.put(e, newBoltname);
+                        } else {
+                            this.executorDetailsStringMap.put(e, newBoltname);
+                        }
+                    }
+                } else {//first iteration or fresh submission
+                    System.out.println("log6-Inside else part");
+                    this.executorDetailsStringMap = _executorDetailsStringMapDummy;
+                }
+            }
+            //
+
+            System.out.println("executorDetailsStringMap inside main-" + this.executorDetailsStringMap + "\n");
             if (executorDetailsStringMap != null) {
                 currentexecToboltNameMatrix = UtilityFunction.createCurrentStateMatrix(topo, cluster, current_boltname_NumberPair, current_workeSlot_NumberPair, row_size_fromConf, column_size_fromConf, this.executorDetailsStringMap, currentState_execToboltNameMap);
 

@@ -89,6 +89,8 @@ public class ScheduleFromMapDiff {
             List<ExecutorDetails> _executorDetailses = new ArrayList();
             WorkerSlot _ws = null;
             {//TODO:contains key is comparing string with workslot type ref
+                System.out.println("log3-" + new ArrayList<>(currentexecToboltNameMap.keySet()));
+                System.out.println("log3-" + slot_conf_key + new ArrayList<>(currentexecToboltNameMap.keySet()).toString().contains(slot_conf_key));
                 if (!currentexecToboltNameMap.containsKey(slot_conf_key)) {//if that slot is never used get executor list for that
 
                     for (String bolt_name_from_conf : slot_conf_val.keySet()) {
