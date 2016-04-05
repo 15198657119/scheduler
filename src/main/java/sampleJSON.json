@@ -113,7 +113,19 @@
       "conf":"orion1",
       "threads":"1"
     }
-
-
+  },
+  "IdentityTopology": {
+    "identity": {
+      "conf": "orion2#6710,1/orion2#6711,1/orion2#6712,1/orion2#6713,1/orion2#6714,1",
+      "threads": "5"
+    },
+    "sink": {
+      "conf": "orion1#6708,1",
+      "threads": "1"
+    },
+    "spout": {
+      "conf": "orion1",
+      "threads": "1"
+    }
   }
 }
