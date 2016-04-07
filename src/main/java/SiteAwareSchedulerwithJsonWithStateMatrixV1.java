@@ -12,8 +12,8 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
 
     private static final String SITE = "site"; //used only while caching supervisor details
     //    private static final String THREADS = "threads";
-    String jsonfilepath = "/data/tetc/apache-storm-0.9.4-ForScheduling/conf/inputTopoConfig.json";
-    //    String jsonfilepath = "/home/anshu/apache-storm-0.10.0/conf/inputTopoConfig.json";
+//    String jsonfilepath = "/data/tetc/apache-storm-0.9.4-ForScheduling/conf/inputTopoConfig.json";
+    String jsonfilepath = "/home/anshu/apache-storm-0.10.0/conf/inputTopoConfig.json";
     Map<ExecutorDetails, String> executorDetailsStringMap;
 
     @Override
@@ -172,7 +172,6 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
                         for (WorkerSlot ws : workerSlots) {
                             if (ws.getPort() == slotid) {
                                 cluster.assign(ws, topo.getId(), new ArrayList(spout_executors.subList(0, threads_forSlot)));
-
                             }
                         }
 //                     System.out.println("Going to assign spout" + workerSlots.get(0) + "-" + spout_executors);
