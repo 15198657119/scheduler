@@ -1,6 +1,7 @@
     package main.java;
 
     import backtype.storm.generated.Bolt;
+    import backtype.storm.generated.SpoutSpec;
     import backtype.storm.generated.StormTopology;
     import backtype.storm.scheduler.Cluster;
     import backtype.storm.scheduler.SupervisorDetails;
@@ -24,6 +25,7 @@
         String topoName = t_name.getName();
 //        System.out.println("\n\n\t\t\t\t--Checking topo needs scheduling---" + topoName);
         Map<String, Bolt> bolts = topology.get_bolts();
+        Map<String, SpoutSpec> spouts = topology.get_spouts();
 
         for (String boltName : bolts.keySet()) {
             String _boltMappingConfig = JsonFIleReader.getJsonConfig(jsonfilepath, topoName, boltName);
@@ -41,9 +43,29 @@
                 boltName_Set_FromConf.add(boltName);
                 workerslot_Set_FromConf.add(_wrkrSlot);
                 fullMappingRes_conf.add(res);
-
             }
         }
+
+        for (String spoutsName : spouts.keySet()) {
+            String _boltMappingConfig = JsonFIleReader.getJsonConfig(jsonfilepath, topoName, spoutsName);
+            System.out.println("\n\n\t\t**********CONF state**********");
+            System.out.println("Test:boltMappingConfig spout- " + _boltMappingConfig);
+            String[] boltMappingConfig_list = _boltMappingConfig.split("/");
+            for (String boltMappingConfig_list_val : boltMappingConfig_list) {
+                int entry = Integer.parseInt(boltMappingConfig_list_val.split(",")[1]);
+                String vm_NameFromConf = boltMappingConfig_list_val.split(",")[0].split("#")[0];
+                String vm_PortFromConf = boltMappingConfig_list_val.split(",")[0].split("#")[1];
+                String _wrkrSlot = vm_Name_supIDMap.get(vm_NameFromConf) + ":" + vm_PortFromConf;
+                String res = _wrkrSlot + "," + spoutsName + "," + entry;
+                System.out.println("\t\tcreateStateFromConf-" + res);
+
+                boltName_Set_FromConf.add(spoutsName);
+                workerslot_Set_FromConf.add(_wrkrSlot);
+                fullMappingRes_conf.add(res);
+            }
+        }
+
+
     }
 
 
