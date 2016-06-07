@@ -1,11 +1,11 @@
     package main.java;
 
-    import backtype.storm.generated.Bolt;
-    import backtype.storm.generated.SpoutSpec;
-    import backtype.storm.generated.StormTopology;
-    import backtype.storm.scheduler.Cluster;
-    import backtype.storm.scheduler.SupervisorDetails;
-    import backtype.storm.scheduler.TopologyDetails;
+    import org.apache.storm.generated.Bolt;
+    import org.apache.storm.generated.SpoutSpec;
+    import org.apache.storm.generated.StormTopology;
+    import org.apache.storm.scheduler.Cluster;
+    import org.apache.storm.scheduler.SupervisorDetails;
+    import org.apache.storm.scheduler.TopologyDetails;
 
     import java.util.*;
 

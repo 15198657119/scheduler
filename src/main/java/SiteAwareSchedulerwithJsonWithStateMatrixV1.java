@@ -1,9 +1,9 @@
 
 package main.java;
 
-import backtype.storm.generated.SpoutSpec;
-import backtype.storm.generated.StormTopology;
-import backtype.storm.scheduler.*;
+import  org.apache.storm.generated.SpoutSpec;
+import  org.apache.storm.generated.StormTopology;
+import  org.apache.storm.scheduler.*;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
     private static final String SITE = "site"; //used only while caching supervisor details
     //    private static final String THREADS = "threads";
 //    String jsonfilepath = "/data/tetc/apache-storm-0.9.4-ForScheduling/conf/inputTopoConfig.json";
-    String jsonfilepath = "/home/anshu/apache-storm-0.10.0/conf/inputTopoConfig.json";
+    String jsonfilepath = "/home/anshu/storm/apache-storm-1.0.1/conf/inputTopoConfig.json";
     Map<ExecutorDetails, String> executorDetailsStringMap;
 
     @Override
@@ -137,51 +137,6 @@ public class SiteAwareSchedulerwithJsonWithStateMatrixV1 implements IScheduler {
 
             //schedule bolt using hashmap
             ScheduleFromMapDiff.findMatrixDiffandSchedule(currentState_execToboltNameMap, execToboltNameMap_Conf_State, vm_Name_supIDMap, supervisors, cluster, topo);
-
-
-//            //schedule Spout seperately
-//            List<ExecutorDetails> spout_executors = new ArrayList<>();
-//            for (String spoutName : spouts.keySet()) {
-//                String site1 = null;
-////                SpoutSpec spout = spouts.get(spoutName);
-//                String spoutMappingConfig = JsonFIleReader.getJsonConfig(jsonfilepath, topoName, spoutName);
-//                String boltMappingThreads = JsonFIleReader.getJsonThreadCount(jsonfilepath, topoName, spoutName);
-//
-//                //
-//                List<String> mappings = Arrays.asList(spoutMappingConfig.split("/"));
-//                //
-//                //CHECK:No split to this config
-//
-//                for (String node_slot : mappings) {
-//
-//                    String nodeName = node_slot.split(",")[0].split("#")[0];
-//                    int slotid = Integer.parseInt(node_slot.split(",")[0].split("#")[1]);
-//                    int threads_forSlot = Integer.parseInt(node_slot.split(",")[1]);
-//
-//                    System.out.println("Scheduling spout for -" + nodeName + "-" + slotid + "-" + threads_forSlot);
-//                    if (mappings != null && supervisors.get(nodeName) != null) {
-//                        site1 = nodeName;
-//                        System.out.println("TEST:inside topology loop for spout-" + site1);
-//                    }
-//
-//                    SupervisorDetails supervisor = supervisors.get(site1);
-//                    List<WorkerSlot> workerSlots = cluster.getAvailableSlots(supervisor);
-//
-//                    spout_executors = cluster.getNeedsSchedulingComponentToExecutors(topo).get(spoutName);
-//                    System.out.println("Remaining list -" + spout_executors);
-//                    if (!workerSlots.isEmpty() && spout_executors != null) {
-//                        for (WorkerSlot ws : workerSlots) {
-//                            if (ws.getPort() == slotid) {
-//                                cluster.assign(ws, topo.getId(), new ArrayList(spout_executors.subList(0, threads_forSlot)));
-//                            }
-//                        }
-////                     System.out.println("Going to assign spout" + workerSlots.get(0) + "-" + spout_executors);
-////                     cluster.assign(workerSlots.get(0), topo.getId(), spout_executors);
-//                    }
-//
-//
-//                }
-//            }
 
 
         }

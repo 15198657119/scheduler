@@ -1,9 +1,9 @@
 
     package main.java;
 
-    import backtype.storm.generated.SpoutSpec;
-    import backtype.storm.generated.StormTopology;
-    import backtype.storm.scheduler.*;
+    import org.apache.storm.generated.SpoutSpec;
+    import org.apache.storm.generated.StormTopology;
+    import org.apache.storm.scheduler.*;
 
     import java.util.*;
 
